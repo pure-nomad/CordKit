@@ -9,9 +9,10 @@ import (
 )
 
 func main() {
-	clientSettings := cordkit.NewClient("xxx", "1358227184719757312", "1358230105838850239", "1358230135295180910", "1358501105906090117", "active", "dead")
-	bot := cordkit.NewBot(clientSettings, true)
-	bot.CustomCommands = true
+	bot, err := cordkit.NewBot("../client.json")
+	if err != nil {
+		log.Fatalf("Error creating bot: %v", err)
+	}
 
 	bot.Commands = append(bot.Commands, cordkit.Command{
 		Name:        "ping",
@@ -25,13 +26,9 @@ func main() {
 	bot.Start()
 	log.Println("Bot is online")
 
-	if bot.Running {
-		conn := bot.HandleConnection("fakeconn1")
-		time.Sleep(time.Second * 1)
-		if bot.Running {
-			bot.KillConnection(conn)
-		}
-	}
+	conn := bot.HandleConnection("fakeconn1")
+	time.Sleep(time.Second * 1)
+	bot.KillConnection(conn)
 
 	select {}
 }

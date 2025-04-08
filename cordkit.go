@@ -1,13 +1,27 @@
 package cordkit
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	dc "github.com/bwmarrin/discordgo"
 )
+
+type Config struct {
+	BotToken              string `json:"bot_token"`
+	GuildID               string `json:"guild_id"`
+	ActiveCategoryID      string `json:"active_category_id"`
+	DeadCategoryID        string `json:"dead_category_id"`
+	TranscriptCategoryID  string `json:"transcript_category_id"`
+	ActiveChannelPrefix   string `json:"active_channel_prefix"`
+	DeadChannelPrefix     string `json:"dead_channel_prefix"`
+	LoggingEnabled        bool   `json:"logging_enabled"`
+	CustomCommandsEnabled bool   `json:"custom_commands_enabled"`
+}
 
 type Bot struct {
 	Client         *Client
@@ -16,6 +30,9 @@ type Bot struct {
 	LogChannelID   string
 	CustomCommands bool
 	Commands       []Command
+	connMutex      sync.Mutex
+	runningMutex   sync.RWMutex
+	connections    map[string]*Connection
 }
 
 type Command struct {
@@ -24,17 +41,42 @@ type Command struct {
 	Action      func(*Bot, *dc.InteractionCreate)
 }
 
-func NewBot(clientSettings *Client, logs bool) *Bot {
-	return &Bot{
-		Client:         clientSettings,
-		Running:        true,
-		Logging:        logs,
-		CustomCommands: false,
-		Commands:       []Command{},
+func NewBot(configPath string) (*Bot, error) {
+	configData, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("error reading config file: %w", err)
 	}
+
+	var config Config
+	if err := json.Unmarshal(configData, &config); err != nil {
+		return nil, fmt.Errorf("error parsing config file: %w", err)
+	}
+
+	client := NewClient(
+		config.BotToken,
+		config.GuildID,
+		config.ActiveCategoryID,
+		config.DeadCategoryID,
+		config.TranscriptCategoryID,
+		config.ActiveChannelPrefix,
+		config.DeadChannelPrefix,
+	)
+
+	return &Bot{
+		Client:         client,
+		Running:        true,
+		Logging:        config.LoggingEnabled,
+		CustomCommands: config.CustomCommandsEnabled,
+		Commands:       []Command{},
+		connections:    make(map[string]*Connection),
+	}, nil
 }
 
 func (b *Bot) Start() {
+	b.runningMutex.Lock()
+	b.Running = true
+	b.runningMutex.Unlock()
+
 	sess, err := dc.New("Bot " + b.Client.botToken)
 	if err != nil {
 		panic(err)
@@ -91,8 +133,17 @@ func (b *Bot) Start() {
 	}
 }
 
+func (b *Bot) IsRunning() bool {
+	b.runningMutex.RLock()
+	defer b.runningMutex.RUnlock()
+	return b.Running
+}
+
 func (b *Bot) Stop() error {
+	b.runningMutex.Lock()
 	b.Running = false
+	b.runningMutex.Unlock()
+
 	now := time.Now()
 	botEndMSG := fmt.Sprintf("Bot stopped at %v", now.Format("03:04PM"))
 	if b.Logging {
@@ -113,6 +164,11 @@ func (b *Bot) SendErrorLog(content string) (*dc.Message, error) {
 
 func (b *Bot) handleSlash(s *dc.Session, i *dc.InteractionCreate) {
 	if i.Type != dc.InteractionApplicationCommand {
+		return
+	}
+
+	if !b.IsRunning() {
+		b.BotRespond(i, "Bot is currently stopped.")
 		return
 	}
 
@@ -217,7 +273,8 @@ type Connection struct {
 }
 
 func (b *Bot) HandleConnection(id string) *Connection {
-
+	b.connMutex.Lock()
+	defer b.connMutex.Unlock()
 	newConnChannel, err := b.CreateChannel(id)
 	if err != nil {
 		panic(err)
@@ -241,6 +298,8 @@ func (b *Bot) HandleConnection(id string) *Connection {
 }
 
 func (b *Bot) KillConnection(conn *Connection) *Connection {
+	b.connMutex.Lock()
+	defer b.connMutex.Unlock()
 	deadChannel, err := b.MakeChannelDead(conn.channelID)
 	if err != nil {
 		panic(err)

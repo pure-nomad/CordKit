@@ -1,0 +1,11 @@
+{
+    "bot_token": "xxx",
+    "guild_id": "1358227184719757312",
+    "active_category_id": "1358230105838850239",
+    "dead_category_id": "1358230135295180910",
+    "transcript_category_id": "1358501105906090117",
+    "active_channel_prefix": "active_connection",
+    "dead_channel_prefix": "dead_connection",
+    "logging_enabled": true,
+    "custom_commands_enabled": true
+} 
