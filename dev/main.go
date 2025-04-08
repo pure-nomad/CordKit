@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-	cordkit.HelloCordkit()
 	clientSettings := cordkit.NewClient("xxx", "1358227184719757312", "1358230105838850239", "1358230135295180910", "1358501105906090117", "active", "dead")
 	bot := cordkit.NewBot(clientSettings, true)
 	bot.CustomCommands = true

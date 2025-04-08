@@ -2,11 +2,15 @@
 
 A portable bridge between your C2 infrastructure and Discord, built for quick and lightweight operations.
 
+CordKit connects your C2 infrastructure with Discord, delivering real-time notifications, session management, and logging for effortless control from anywhere.
+
+It includes dynamic slash command management that lets you easily extend the bot with your own custom commands.
+
 ## Features
 
 ### 🟢 Logging
-- Automatic transcript channel creation for logging your operations.
-- Info & Error logging with timestamps & emojis :3
+- Automatic transcript archiving for logging your operations.
+- Info & Error Logging
 
 ### 🟢 Custom Commands
 - Dynamic slash command registration with a built in management system.
@@ -17,9 +21,8 @@ A portable bridge between your C2 infrastructure and Discord, built for quick an
   - `/nuke` - Complete server cleanup and stop the server process
 
 ### 🟢 Session Management
-- Automatic channel creation for new sessions
-- Archives dead sessions in a seperate category
-- Configurable channel naming conventions for your active and dead connections :3
+- Organized session channels (active, dead)
+- Configurable naming conventions!
 
 ## Configuration
 
@@ -63,5 +66,11 @@ bot.Commands = append(bot.Commands, cordkit.Command{
     },
 })
 
+defer bot.Stop()
 bot.Start()
+
+// Session Management
+conn := bot.HandleConnection("connection_name")
+time.Sleep(time.Second*1)
+bot.KillConnection(conn)
 ```
