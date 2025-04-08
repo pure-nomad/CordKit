@@ -1,7 +1,5 @@
 # CordKit
 
-A portable bridge between your C2 infrastructure and Discord, built for quick and lightweight operations.
-
 CordKit connects your C2 infrastructure with Discord, delivering real-time notifications, session management, and logging for effortless control from anywhere.
 
 It includes dynamic slash command management that lets you easily extend the bot with your own custom commands.
