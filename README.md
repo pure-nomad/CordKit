@@ -6,10 +6,6 @@ It includes dynamic slash command management that lets you easily extend the bot
 
 ## Features
 
-### 🟢 Logging
-- Automatic transcript archiving for logging your operations.
-- Info & Error Logging
-
 ### 🟢 Custom Commands
 - Dynamic slash command registration with a built in management system.
 - Default Commands:
@@ -21,6 +17,10 @@ It includes dynamic slash command management that lets you easily extend the bot
 ### 🟢 Session Management
 - Organized session channels (active, dead)
 - Configurable naming conventions!
+
+### 🟢 Logging
+- Automatic transcript archiving for logging your operations.
+- Info & Error Logging
 
 ## Configuration
 
@@ -42,25 +42,39 @@ CordKit requires the following configuration parameters:
 ```go
 // Basic Setup
 clientSettings := cordkit.NewClient(
-    "BOT_TOKEN", // Discord Bot Token
-    "GUILD_ID", // Discord Server ID
-    "ACTIVE_CATEGORY_ID", // ID of your active category
-    "DEAD_CATEGORY_ID", // ID of your dead category
+    "BOT_TOKEN",              // Discord Bot Token
+    "GUILD_ID",               // Discord Server ID
+    "ACTIVE_CATEGORY_ID",     // ID of your active category
+    "DEAD_CATEGORY_ID",       // ID of your dead category
     "TRANSCRIPT_CATEGORY_ID", // ID of your transcript category
-    "active", // Prefix for active connections
-    "dead", // Prefix for dead connections
+    "active",                 // Prefix for active connections
+    "dead",                   // Prefix for dead connections
 )
 
 // Start bot with client settings & logging enabled
 bot := cordkit.NewBot(clientSettings, true)
 bot.CustomCommands = true
 
-// Add a custom command
+// Add a custom command with options
 bot.Commands = append(bot.Commands, cordkit.Command{
     Name:        "ping",
     Description: "Responds with pong",
+    Options: []*dc.ApplicationCommandOption{
+        {
+            Type:        dc.ApplicationCommandOptionString,
+            Name:        "message",
+            Description: "Custom message to reply with",
+            Required:    false,
+        },
+    },
     Action: func(b *cordkit.Bot, i *dc.InteractionCreate) {
-        b.SendMsg(i.ChannelID, "Pong!")
+        opts := i.ApplicationCommandData().Options
+        if len(opts) > 0 {
+            msg := opts[0].StringValue()
+            b.SendMsg(i.ChannelID, msg)
+        } else {
+            b.SendMsg(i.ChannelID, "Pong!")
+        }
     },
 })
 
@@ -69,6 +83,6 @@ bot.Start()
 
 // Session Management
 conn := bot.HandleConnection("connection_name")
-time.Sleep(time.Second*1)
+time.Sleep(time.Second * 1)
 bot.KillConnection(conn)
 ```
