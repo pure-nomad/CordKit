@@ -38,6 +38,7 @@ type Bot struct {
 type Command struct {
 	Name        string
 	Description string
+	Options     []*dc.ApplicationCommandOption
 	Action      func(*Bot, *dc.InteractionCreate)
 }
 
@@ -123,6 +124,7 @@ func (b *Bot) Start() {
 			cmds = append(cmds, &dc.ApplicationCommand{
 				Name:        cmd.Name,
 				Description: cmd.Description,
+				Options:     cmd.Options,
 			})
 		}
 	}
