@@ -32,7 +32,7 @@ CordKit requires the following configuration parameters:
 
 ## TODO
 
-1. Integrate with Stellarlink
+1. Integrate with Stellarlink ✅
 2. Integrate with larger projects:
    - Sliver
    - Ligolo
