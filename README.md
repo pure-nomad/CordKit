@@ -35,6 +35,7 @@ CordKit requires the following configuration parameters:
 1. Integrate with Stellarlink ✅
 2. Integrate with larger projects:
    - Sliver
+   - Evilginx
    - Ligolo
 
 ## Usage
