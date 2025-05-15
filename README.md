@@ -33,10 +33,12 @@ CordKit requires the following configuration parameters:
 ## TODO
 
 1. Integrate with Stellarlink ✅
-2. Integrate with larger projects:
+2. Make server setup script for a quick setup
+3. Integrate with larger projects:
    - Sliver
    - Evilginx
    - Ligolo
+   - Tracescout
 
 ## Usage
 
