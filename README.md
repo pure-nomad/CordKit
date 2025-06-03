@@ -6,7 +6,7 @@ It includes dynamic slash command management that lets you easily extend the bot
 
 ## Features
 
-### 🟢 Custom Commands
+### Custom Commands
 - Dynamic slash command registration with a built in management system.
 - Default Commands:
   - `/start` - Enable Bot
@@ -14,11 +14,11 @@ It includes dynamic slash command management that lets you easily extend the bot
   - `/purge` - Clean up dead session channels
   - `/nuke` - Complete server cleanup and stop the server process
 
-### 🟢 Session Management
+### Session Management
 - Organized session channels (active, dead)
 - Configurable naming conventions!
 
-### 🟢 Logging
+### Logging
 - Automatic transcript archiving for logging your operations.
 - Info & Error Logging
 
